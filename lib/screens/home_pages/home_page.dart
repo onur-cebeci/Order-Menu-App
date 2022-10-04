@@ -18,6 +18,7 @@ class HomePage extends StatelessWidget {
             children: [
               CustomAppBarWidget(size: size),
               SizedBox(
+                height: size.height - 100,
                 child: SingleChildScrollView(
                   child: Column(
                     children: [
@@ -33,22 +34,20 @@ class HomePage extends StatelessWidget {
                                     'https://images.pexels.com/photos/1565982/pexels-photo-1565982.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
                                 text: ' FOOD',
                               ),
-                              ListView.builder(
-                                itemCount: foodList.length,
-                                itemBuilder: (context, index) {
-                                  return Container();
-                                },
+                              SizedBox(height: mediumPading),
+                              CustomModelList(size: size),
+                              SizedBox(height: mediumPading),
+                              CustomTabMenu(
+                                size: size,
+                                image:
+                                    'https://images.pexels.com/photos/12821521/pexels-photo-12821521.jpeg?auto=compress&cs=tinysrgb&w=1600',
+                                text: 'COFFEE',
                               ),
                             ],
                           ),
 
                           /*
-                          CustomTabMenu(
-                            size: size,
-                            image:
-                                'https://images.pexels.com/photos/12821521/pexels-photo-12821521.jpeg?auto=compress&cs=tinysrgb&w=1600',
-                            text: 'COFFEE',
-                          ),
+
                           CustomTabMenu(
                             size: size,
                             image:
@@ -64,6 +63,65 @@ class HomePage extends StatelessWidget {
               ),
             ],
           )),
+    );
+  }
+}
+
+class CustomModelList extends StatelessWidget {
+  const CustomModelList({
+    Key? key,
+    required this.size,
+  }) : super(key: key);
+
+  final Size size;
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: 220,
+      child: ListView.builder(
+        physics: const PageScrollPhysics(),
+        scrollDirection: Axis.horizontal,
+        itemCount: foodList.length,
+        itemBuilder: (context, index) {
+          final item = foodList[index];
+          return Stack(
+            children: [
+              SizedBox(
+                height: 200,
+                width: size.width,
+                child: Image.asset(
+                  item.img,
+                  fit: BoxFit.fill,
+                ),
+              ),
+              Positioned(
+                bottom: 0,
+                left: size.width / 3.5,
+                child: SizedBox(
+                  height: 100,
+                  width: 220,
+                  child: Text(
+                    item.name,
+                    style: Theme.of(context).textTheme.headline2!.copyWith(
+                        color: Colors.white.withOpacity(0.9), fontSize: 35),
+                  ),
+                ),
+              ),
+              Positioned(
+                right: 5,
+                child: Text(
+                  '\$ ${item.value.toString()}',
+                  style: Theme.of(context)
+                      .textTheme
+                      .headline3!
+                      .copyWith(fontWeight: FontWeight.bold),
+                ),
+              ),
+            ],
+          );
+        },
+      ),
     );
   }
 }
@@ -86,7 +144,7 @@ class CustomTabMenu extends StatelessWidget {
       children: [
         Container(
             height: size.height / 6.5,
-            width: size.width - 10,
+            width: size.width,
             decoration: const BoxDecoration(
                 color: Colors.transparent,
                 borderRadius: BorderRadius.all(Radius.elliptical(20, 10))),
