@@ -13,7 +13,7 @@ double smallPading = 10;
 double mediumPading = 20;
 double bigPading = 40;
 
-const backgroundGradient = LinearGradient(
+const darkBackgroundGradient = LinearGradient(
     begin: Alignment.topCenter,
     end: Alignment.bottomCenter,
     colors: [

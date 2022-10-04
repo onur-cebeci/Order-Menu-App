@@ -1,22 +1,28 @@
 import 'package:flutter/material.dart';
 import 'package:order_web_app/constant.dart';
 import 'package:order_web_app/models/model.dart';
+import 'package:order_web_app/providers/background_provider.dart';
+import 'package:provider/provider.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    Gradient changedGradient =
+        Provider.of<BackgraoundProvider>(context).changeBackGround;
     Size size = MediaQuery.of(context).size;
     return Container(
-      decoration: const BoxDecoration(
-        gradient: backgroundGradient,
+      decoration: BoxDecoration(
+        gradient: changedGradient,
       ),
       child: Scaffold(
           backgroundColor: Colors.transparent,
           body: Column(
             children: [
-              CustomAppBarWidget(size: size),
+              CustomAppBarWidget(
+                size: size,
+              ),
               SizedBox(
                 height: size.height - 100,
                 child: SingleChildScrollView(
@@ -32,10 +38,13 @@ class HomePage extends StatelessWidget {
                                 size: size,
                                 image:
                                     'https://images.pexels.com/photos/1565982/pexels-photo-1565982.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
-                                text: ' FOOD',
+                                text: '  FOOD',
                               ),
                               SizedBox(height: mediumPading),
-                              CustomModelList(size: size),
+                              CustomModelList(
+                                  size: size,
+                                  listLenght: foodList.length,
+                                  list: foodList),
                               SizedBox(height: mediumPading),
                               CustomTabMenu(
                                 size: size,
@@ -43,6 +52,11 @@ class HomePage extends StatelessWidget {
                                     'https://images.pexels.com/photos/12821521/pexels-photo-12821521.jpeg?auto=compress&cs=tinysrgb&w=1600',
                                 text: 'COFFEE',
                               ),
+                              SizedBox(height: mediumPading),
+                              CustomModelList(
+                                  size: size,
+                                  listLenght: foodList.length,
+                                  list: foodList),
                             ],
                           ),
 
@@ -71,9 +85,13 @@ class CustomModelList extends StatelessWidget {
   const CustomModelList({
     Key? key,
     required this.size,
+    required this.listLenght,
+    required this.list,
   }) : super(key: key);
 
   final Size size;
+  final int listLenght;
+  final List list;
 
   @override
   Widget build(BuildContext context) {
@@ -82,9 +100,9 @@ class CustomModelList extends StatelessWidget {
       child: ListView.builder(
         physics: const PageScrollPhysics(),
         scrollDirection: Axis.horizontal,
-        itemCount: foodList.length,
+        itemCount: listLenght,
         itemBuilder: (context, index) {
-          final item = foodList[index];
+          final item = list[index];
           return Stack(
             children: [
               SizedBox(
@@ -161,14 +179,14 @@ class CustomTabMenu extends StatelessWidget {
           color: Colors.black.withOpacity(0.1),
         ),
         Positioned(
-            top: (size.height / 8) / 2,
-            left: (size.width / 3.2) / 13,
+            top: (size.height / 8) / 2.5,
+            left: size.width / 3.5,
             child: Text(
               text,
               style: Theme.of(context)
                   .textTheme
-                  .headline2!
-                  .copyWith(fontSize: 30, color: Colors.white70),
+                  .headline1!
+                  .copyWith(color: Colors.white70),
             )),
       ],
     );
@@ -176,7 +194,7 @@ class CustomTabMenu extends StatelessWidget {
 }
 
 class CustomAppBarWidget extends StatelessWidget {
-  const CustomAppBarWidget({
+  CustomAppBarWidget({
     Key? key,
     required this.size,
   }) : super(key: key);
@@ -185,6 +203,8 @@ class CustomAppBarWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    int value =
+        Provider.of<BackgraoundProvider>(context, listen: true).borderValue;
     return Container(
       width: size.width,
       height: 100,
@@ -202,34 +222,61 @@ class CustomAppBarWidget extends StatelessWidget {
               color: Colors.white38,
             ),
           ),
-          Spacer(),
-          Container(
-            height: 20,
-            width: 20,
-            decoration: BoxDecoration(
-              gradient: backgroundGradient,
-              borderRadius: BorderRadius.circular(120),
-            ),
-          ),
-          SizedBox(width: 5),
-          Container(
-            height: 20,
-            width: 20,
-            decoration: BoxDecoration(
-              gradient: oceanBackgroundGradient,
-              borderRadius: BorderRadius.circular(120),
+          const Spacer(),
+          InkWell(
+            onTap: () {
+              Provider.of<BackgraoundProvider>(context, listen: false)
+                  .changeBackGroundGradient(0);
+            },
+            child: Container(
+              height: 20,
+              width: 20,
+              decoration: BoxDecoration(
+                border: value == 0
+                    ? Border.all(color: Colors.white, width: 2)
+                    : null,
+                gradient: darkBackgroundGradient,
+                borderRadius: BorderRadius.circular(120),
+              ),
             ),
           ),
           const SizedBox(width: 5),
-          Container(
-            height: 20,
-            width: 20,
-            decoration: BoxDecoration(
-              gradient: almostBackgroundGradient,
-              borderRadius: BorderRadius.circular(120),
+          InkWell(
+            onTap: () {
+              Provider.of<BackgraoundProvider>(context, listen: false)
+                  .changeBackGroundGradient(1);
+            },
+            child: Container(
+              height: 20,
+              width: 20,
+              decoration: BoxDecoration(
+                border: value == 1
+                    ? Border.all(color: Colors.white, width: 2)
+                    : null,
+                gradient: oceanBackgroundGradient,
+                borderRadius: BorderRadius.circular(120),
+              ),
             ),
           ),
-          SizedBox(width: 5),
+          const SizedBox(width: 5),
+          InkWell(
+            onTap: () {
+              Provider.of<BackgraoundProvider>(context, listen: false)
+                  .changeBackGroundGradient(2);
+            },
+            child: Container(
+              height: 20,
+              width: 20,
+              decoration: BoxDecoration(
+                border: value == 2
+                    ? Border.all(color: Colors.white, width: 2)
+                    : null,
+                gradient: almostBackgroundGradient,
+                borderRadius: BorderRadius.circular(120),
+              ),
+            ),
+          ),
+          const SizedBox(width: 5),
         ],
       ),
     );
