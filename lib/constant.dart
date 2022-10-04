@@ -20,3 +20,18 @@ const backgroundGradient = LinearGradient(
       darkPrimaryColor,
       darkSecondColor,
     ]);
+
+const oceanBackgroundGradient = LinearGradient(
+    begin: Alignment.topCenter,
+    end: Alignment.bottomCenter,
+    colors: [
+      oceanPrimaryColor,
+      oceanSecondColor,
+    ]);
+const almostBackgroundGradient = LinearGradient(
+    begin: Alignment.topCenter,
+    end: Alignment.bottomCenter,
+    colors: [
+      almostPrimaryColor,
+      almostSecondColor,
+    ]);
