@@ -1,7 +1,9 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:order_web_app/constant.dart';
-import 'package:order_web_app/models/model.dart';
+import 'package:order_web_app/models/foods.dart';
 import 'package:order_web_app/providers/background_provider.dart';
+import 'package:order_web_app/screens/description_pages/description_page.dart';
 import 'package:provider/provider.dart';
 
 class HomePage extends StatelessWidget {
@@ -42,6 +44,7 @@ class HomePage extends StatelessWidget {
                               ),
                               SizedBox(height: mediumPading),
                               CustomModelList(
+                                  offsetSize: 45,
                                   size: size,
                                   listLenght: foodList.length,
                                   list: foodList),
@@ -54,9 +57,11 @@ class HomePage extends StatelessWidget {
                               ),
                               SizedBox(height: mediumPading),
                               CustomModelList(
+                                  offsetSize: 95,
                                   size: size,
-                                  listLenght: foodList.length,
-                                  list: foodList),
+                                  listLenght: coffeesList.length,
+                                  list: coffeesList),
+                              SizedBox(height: mediumPading),
                             ],
                           ),
 
@@ -87,61 +92,97 @@ class CustomModelList extends StatelessWidget {
     required this.size,
     required this.listLenght,
     required this.list,
+    required this.offsetSize,
   }) : super(key: key);
 
   final Size size;
   final int listLenght;
   final List list;
+  final double offsetSize;
 
   @override
   Widget build(BuildContext context) {
+    final PageController pageController =
+        PageController(keepPage: false, viewportFraction: 0.6, initialPage: 2);
     return SizedBox(
-      height: 220,
-      child: ListView.builder(
-        physics: const PageScrollPhysics(),
-        scrollDirection: Axis.horizontal,
-        itemCount: listLenght,
-        itemBuilder: (context, index) {
-          final item = list[index];
-          return Stack(
-            children: [
-              SizedBox(
-                height: 200,
-                width: size.width,
-                child: Image.asset(
-                  item.img,
-                  fit: BoxFit.fill,
-                ),
-              ),
-              Positioned(
-                bottom: 0,
-                left: size.width / 3.5,
-                child: SizedBox(
-                  height: 100,
-                  width: 220,
-                  child: Text(
-                    item.name,
-                    style: Theme.of(context).textTheme.headline2!.copyWith(
-                        color: Colors.white.withOpacity(0.9), fontSize: 35),
+        height: 275,
+        width: size.width,
+        child: PageView.builder(
+          controller: pageController,
+          physics: const PageScrollPhysics(),
+          scrollDirection: Axis.horizontal,
+          itemCount: listLenght,
+          itemBuilder: (context, index) {
+            final item = list[index];
+            return InkWell(
+              splashColor: Colors.transparent,
+              highlightColor: Colors.transparent,
+              onLongPress: () {
+                showDialog(
+                    barrierDismissible: true,
+                    context: context,
+                    builder: (_) => DescriptionPage(index: item));
+              },
+              child: Stack(
+                children: [
+                  Container(
+                    height: 250,
+                    width: size.width,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.rectangle,
+                      boxShadow: [
+                        BoxShadow(
+                            spreadRadius: -90,
+                            color: Colors.black.withOpacity(0.5),
+                            blurRadius: 30,
+                            blurStyle: BlurStyle.normal,
+                            offset: Offset(0, offsetSize)),
+                      ],
+                    ),
+                    child: Image.asset(
+                      item.img,
+                      fit: BoxFit.contain,
+                    ),
                   ),
-                ),
+                  Positioned(
+                      bottom: -20,
+                      left: size.width / 28,
+                      child: AnimatedOpacity(
+                        duration: const Duration(milliseconds: 500),
+                        opacity: list[index].name != item.name ? 0.3 : 1.0,
+                        child: SizedBox(
+                          height: 100,
+                          width: 220,
+                          child: Text(
+                            item.name,
+                            textAlign: TextAlign.center,
+                            style: Theme.of(context)
+                                .textTheme
+                                .headline2!
+                                .copyWith(
+                                    color: Colors.white.withOpacity(0.9),
+                                    fontSize: 24),
+                          ),
+                        ),
+                      )),
+                  Positioned(
+                    right: 5,
+                    child: Text(
+                      '\$${item.value.toString()}',
+                      style: Theme.of(context)
+                          .textTheme
+                          .headline3!
+                          .copyWith(fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                ],
               ),
-              Positioned(
-                right: 5,
-                child: Text(
-                  '\$ ${item.value.toString()}',
-                  style: Theme.of(context)
-                      .textTheme
-                      .headline3!
-                      .copyWith(fontWeight: FontWeight.bold),
-                ),
-              ),
-            ],
-          );
-        },
-      ),
-    );
+            );
+          },
+        ));
   }
+
+  pageChanged() {}
 }
 
 class CustomTabMenu extends StatelessWidget {
@@ -194,7 +235,7 @@ class CustomTabMenu extends StatelessWidget {
 }
 
 class CustomAppBarWidget extends StatelessWidget {
-  CustomAppBarWidget({
+  const CustomAppBarWidget({
     Key? key,
     required this.size,
   }) : super(key: key);

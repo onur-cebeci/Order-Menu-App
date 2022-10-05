@@ -29,19 +29,23 @@ class MyApp extends StatelessWidget {
             fontSize: 45,
             fontWeight: FontWeight.bold,
             color: Colors.white,
+            overflow: TextOverflow.clip,
           ),
           headline2: TextStyle(
             fontSize: 35,
             fontWeight: FontWeight.w500,
             color: Colors.white,
+            overflow: TextOverflow.clip,
           ),
           headline3: TextStyle(
             fontSize: 28,
             color: Colors.white,
+            overflow: TextOverflow.clip,
           ),
           headline4: TextStyle(
             fontSize: 24,
             color: Colors.white,
+            overflow: TextOverflow.clip,
           ),
         ),
       ),
