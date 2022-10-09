@@ -1,8 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:order_web_app/providers/background_provider.dart';
 import 'package:order_web_app/screens/home_pages/home_page.dart';
+import 'package:provider/provider.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => BackgraoundProvider()),
+      ],
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -20,19 +29,23 @@ class MyApp extends StatelessWidget {
             fontSize: 45,
             fontWeight: FontWeight.bold,
             color: Colors.white,
+            overflow: TextOverflow.clip,
           ),
           headline2: TextStyle(
             fontSize: 35,
             fontWeight: FontWeight.w500,
             color: Colors.white,
+            overflow: TextOverflow.clip,
           ),
           headline3: TextStyle(
             fontSize: 28,
             color: Colors.white,
+            overflow: TextOverflow.clip,
           ),
           headline4: TextStyle(
             fontSize: 24,
             color: Colors.white,
+            overflow: TextOverflow.clip,
           ),
         ),
       ),
