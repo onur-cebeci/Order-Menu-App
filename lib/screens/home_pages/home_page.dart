@@ -1,7 +1,10 @@
+import 'dart:math';
+import 'dart:ui';
+
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:order_web_app/constant.dart';
-import 'package:order_web_app/models/foods.dart';
+import 'package:order_web_app/models/model.dart';
 import 'package:order_web_app/providers/background_provider.dart';
 import 'package:order_web_app/screens/description_pages/description_page.dart';
 import 'package:provider/provider.dart';
@@ -33,7 +36,6 @@ class HomePage extends StatelessWidget {
                       Column(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
-                          SizedBox(height: smallPading),
                           Column(
                             children: [
                               CustomTabMenu(
@@ -86,7 +88,7 @@ class HomePage extends StatelessWidget {
   }
 }
 
-class CustomModelList extends StatelessWidget {
+class CustomModelList extends StatefulWidget {
   const CustomModelList({
     Key? key,
     required this.size,
@@ -99,57 +101,113 @@ class CustomModelList extends StatelessWidget {
   final int listLenght;
   final List list;
   final double offsetSize;
+  @override
+  State<CustomModelList> createState() => _CustomModelListState();
+}
+
+class _CustomModelListState extends State<CustomModelList> {
+  double viewportFraction = 0.7;
+  PageController pageController = PageController();
+  late double pageOffset = 0.0;
+
+  @override
+  void initState() {
+    super.initState();
+    pageController = PageController(
+        keepPage: false, viewportFraction: viewportFraction, initialPage: 2)
+      ..addListener(() {
+        setState(() {
+          pageOffset = pageController.page!;
+        });
+      });
+  }
 
   @override
   Widget build(BuildContext context) {
-    final PageController pageController =
-        PageController(keepPage: false, viewportFraction: 0.6, initialPage: 2);
-    return SizedBox(
-        height: 275,
-        width: size.width,
+    return Container(
+        height: 300,
+        width: widget.size.width,
+        decoration: const BoxDecoration(
+          boxShadow: [
+            BoxShadow(
+                blurRadius: 16,
+                color: Colors.black,
+                spreadRadius: 0.2,
+                blurStyle: BlurStyle.outer),
+          ],
+        ),
         child: PageView.builder(
           controller: pageController,
           physics: const PageScrollPhysics(),
           scrollDirection: Axis.horizontal,
-          itemCount: listLenght,
+          itemCount: widget.listLenght,
           itemBuilder: (context, index) {
-            final item = list[index];
+            final item = widget.list[index];
+
+            double scale = max(viewportFraction,
+                (1 - (pageOffset - index).abs()) + viewportFraction);
+
+            double pageOpacity = (pageOffset - index).abs();
+            print(pageOpacity.toString());
+
             return InkWell(
               splashColor: Colors.transparent,
               highlightColor: Colors.transparent,
-              onLongPress: () {
-                showDialog(
-                    barrierDismissible: true,
-                    context: context,
-                    builder: (_) => DescriptionPage(index: item));
+              onTap: () {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => DescriptionPage(item: item)));
               },
               child: Stack(
                 children: [
                   Container(
-                    height: 250,
-                    width: size.width,
                     decoration: BoxDecoration(
-                      shape: BoxShape.rectangle,
-                      boxShadow: [
-                        BoxShadow(
-                            spreadRadius: -90,
-                            color: Colors.black.withOpacity(0.5),
-                            blurRadius: 30,
-                            blurStyle: BlurStyle.normal,
-                            offset: Offset(0, offsetSize)),
-                      ],
+                      image: DecorationImage(
+                          image: AssetImage(item.img), fit: BoxFit.cover),
                     ),
-                    child: Image.asset(
-                      item.img,
-                      fit: BoxFit.contain,
+                    child: BackdropFilter(
+                      filter: ImageFilter.blur(
+                        sigmaX: 15,
+                        sigmaY: 15,
+                      ),
+                      child: Container(
+                        color: Colors.black.withOpacity(0.2),
+                      ),
                     ),
                   ),
+                  Container(
+                      padding: EdgeInsets.only(top: 70 - scale * 40),
+                      height: 250,
+                      width: widget.size.width,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.rectangle,
+                        boxShadow: [
+                          BoxShadow(
+                              spreadRadius: -90,
+                              color: Colors.black.withOpacity(0.5),
+                              blurRadius: 30,
+                              blurStyle: BlurStyle.normal,
+                              offset: Offset(0, widget.offsetSize)),
+                        ],
+                      ),
+                      child: Hero(
+                        tag: 'tag${item.img}',
+                        child: Image.asset(
+                          item.img,
+                          fit: BoxFit.contain,
+                        ),
+                      )),
                   Positioned(
                       bottom: -20,
-                      left: size.width / 28,
+                      left: (widget.size.width) / 14,
                       child: AnimatedOpacity(
-                        duration: const Duration(milliseconds: 500),
-                        opacity: list[index].name != item.name ? 0.3 : 1.0,
+                        duration: const Duration(milliseconds: 250),
+                        opacity: pageOpacity == 1
+                            ? pageOpacity == 0
+                                ? 1
+                                : 0
+                            : 1,
                         child: SizedBox(
                           height: 100,
                           width: 220,
@@ -166,7 +224,8 @@ class CustomModelList extends StatelessWidget {
                         ),
                       )),
                   Positioned(
-                    right: 5,
+                    top: 10,
+                    right: 10,
                     child: Text(
                       '\$${item.value.toString()}',
                       style: Theme.of(context)
@@ -181,8 +240,6 @@ class CustomModelList extends StatelessWidget {
           },
         ));
   }
-
-  pageChanged() {}
 }
 
 class CustomTabMenu extends StatelessWidget {
@@ -202,25 +259,24 @@ class CustomTabMenu extends StatelessWidget {
     return Stack(
       children: [
         Container(
-            height: size.height / 6.5,
-            width: size.width,
-            decoration: const BoxDecoration(
-                color: Colors.transparent,
-                borderRadius: BorderRadius.all(Radius.elliptical(20, 10))),
-            child: ClipRRect(
-              borderRadius: const BorderRadius.all(Radius.elliptical(20, 10)),
-              child: Image.network(
-                image,
+          height: size.height / 9,
+          width: size.width,
+          decoration: const BoxDecoration(
+              color: Colors.transparent,
+              borderRadius: BorderRadius.all(Radius.elliptical(20, 10))),
+          child: Container(
+            decoration: BoxDecoration(
+              image: DecorationImage(
+                image: NetworkImage(
+                  image,
+                ),
                 fit: BoxFit.cover,
               ),
-            )),
-        Container(
-          height: size.height / 6.5,
-          width: size.width / 3.2,
-          color: Colors.black.withOpacity(0.1),
+            ),
+          ),
         ),
         Positioned(
-            top: (size.height / 8) / 2.5,
+            top: (size.height / 9) / 4,
             left: size.width / 3.5,
             child: Text(
               text,
