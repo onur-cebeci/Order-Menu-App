@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:order_web_app/providers/background_provider.dart';
+import 'package:order_web_app/providers/icon_button_provider.dart';
 import 'package:order_web_app/screens/home_pages/home_page.dart';
 import 'package:provider/provider.dart';
 
@@ -8,6 +9,7 @@ void main() {
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => BackgraoundProvider()),
+        ChangeNotifierProvider(create: (_) => IconButtonProvider()),
       ],
       child: const MyApp(),
     ),
